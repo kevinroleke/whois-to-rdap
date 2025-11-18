@@ -87,7 +87,7 @@ func checkDomain(name string) error {
 func handleSuccess(req string, conn net.Conn) {
 	res, err := rdapQuery(req)
 	if err != nil {
-		fmt.Fprintf(conn, NO_MATCH, req)
+		fmt.Fprintf(conn, NO_MATCH + "\n\nEither we don't have the RDAP server for that TLD, or the domain does not exist.", req)
 		conn.Close()
 		return
 	}
@@ -125,13 +125,8 @@ func handleClient(conn net.Conn) {
 				conn.Close()
 			} else {
 				if err := checkDomain(req); err != nil {
-					_, err := fmt.Fprintf(conn, NO_MATCH, req)
-					if err != nil {
-						conn.Write([]byte(err.Error()))
-						conn.Close()
-					} else {
-						conn.Close()
-					}
+					fmt.Fprintf(conn, NO_MATCH + "\n\nInvalid domain: %s", req, err.Error())
+					conn.Close()
 				} else {
 					handleSuccess(req, conn)
 				}
