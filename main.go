@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"bytes"
 	"fmt"
 	"log"
 	"net"
@@ -84,6 +84,7 @@ func checkDomain(name string) error {
 }
 
 func handleSuccess(req string, conn net.Conn) {
+	/*
 	res, err := rdapQuery(req)
 	if err != nil {
 		fmt.Fprintf(conn, NO_MATCH + "\n\nEither we don't have the RDAP server for that TLD, or the domain does not exist.", req)
@@ -98,6 +99,13 @@ func handleSuccess(req string, conn net.Conn) {
 	}
 
 	conn.Write(append([]byte(HELP), j...))
+	conn.Close()
+	*/
+	conn.Write([]byte(HELP))
+	var err bytes.Buffer
+	if rdap.RunCLI([]string{req}, conn, &err, rdap.CLIOptions{}) != 0 {
+		conn.Write(err.Bytes())
+	}
 	conn.Close()
 }
 
@@ -154,11 +162,6 @@ func listen(port string) error {
 
 		go handleClient(conn)
 	}
-}
-
-func rdapQuery(domain string) (*rdap.Domain, error) {
-	client := &rdap.Client{}
-	return client.QueryDomain(domain)
 }
 
 func main() {
