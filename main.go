@@ -9,8 +9,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/ryanmab/rdap-go/pkg/client"
-	"github.com/ryanmab/rdap-go/pkg/client/response/dns"
+	"github.com/openrdap/rdap"
 )
 
 const (
@@ -157,12 +156,11 @@ func listen(port string) error {
 	}
 }
 
-func rdapQuery(domain string) (*dns.Response, error) {
-	client := client.New()
-
-	return client.LookupDomain(domain)
+func rdapQuery(domain string) (*rdap.Domain, error) {
+	client := &rdap.Client{}
+	return client.QueryDomain(domain)
 }
 
 func main() {
-	log.Fatal(listen(":4343"))
+	log.Fatal(listen(":43"))
 }
